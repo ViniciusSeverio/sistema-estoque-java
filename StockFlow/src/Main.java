@@ -12,7 +12,7 @@ public class Main {
 		
 		while (opcao != 4) {
 		
-		System.out.println("\n====== MENU ======");
+		System.out.println("\n\n====== MENU ======\n");
 		System.out.println("1 - Cadastrar produto");
 		System.out.println("2 - Listar produtos");
 		System.out.println("3 - Movimentar estoque");
@@ -30,10 +30,10 @@ public class Main {
 		}
 		else if (opcao == 2) {
 			
-			listarProdutos(sc, produtos);
+			listarProdutos(produtos);
 		}
 		else if (opcao == 3) {
-			 System.out.println("Movimentação de estoque em desenvolvimento.");
+			 movimentacaoEstoque(sc, produtos);
 			
 		}
 		else if (opcao == 4) {
@@ -51,75 +51,83 @@ public class Main {
 		public static void cadastroProduto(
 				Scanner sc,
 				ArrayList<Produto> produtos) {
-			Produto produto = new Produto();
-			
 				
-			double ValorTotalEstoque;
+				
+			double valorTotalEstoque;
 				
 		System.out.println("Nome do produto:");
-			produto.nome = sc.nextLine();
+			String nome = sc.nextLine();
 		System.out.println("Código do produto:");
-			produto.codigo = sc.nextInt();
+			int codigo = sc.nextInt();
 		System.out.println("Quantidade em estoque:");
-			produto.quantidade = sc.nextInt();
+			int quantidade = sc.nextInt();
 		System.out.println("Preço:");
-			produto.preco = sc.nextDouble();
+			double preco = sc.nextDouble();
 			
+			Produto produto = new Produto(nome, codigo, quantidade, preco);
 			
-			ValorTotalEstoque = produto.quantidade * produto.preco;
+			valorTotalEstoque = produto.getQuantidade() * produto.getPreco();
 		
-		if (produto.nome.isBlank()) {
+		if (nome.isBlank()) {
 			System.out.println("\n\nProduto inválido: nome não informado.");
 			
 		}
-		else if (produto.codigo <= 0) {
+		else if (codigo <= 0) {
 			System.out.println("\n\nProduto inválido: código inválido.");
 			
 		}
-		else if (produto.quantidade < 0) {
+		else if (codigoExiste(codigo, produtos)) {
+			System.out.println("\n\nProduto inválido: código já cadastrado.");
+		
+		}
+		else if (quantidade < 0) {
 			System.out.println("\n\nProduto inválido: quantidade Inválida.");
 			
 		}
-		else if (produto.preco <= 0) {
+		else if (preco <= 0) {
 			System.out.println("\n\nProduto Inválido: preço inválido.");
 			
 		}
 		else {
 			produtos.add(produto);
-			System.out.println("\n\n======= PRODUTO ======= \n\nNome: " + produto.nome + "\nCódigo: " + produto.codigo + "\nQuantidade: " + produto.quantidade + "\nPreço: " + produto.preco + "\nValor total em estoque: " + ValorTotalEstoque);
+			System.out.println("\n\n======= PRODUTO ======= \n\nNome: " + produto.getNome() + "\nCódigo: " + produto.getCodigo() + "\nQuantidade: " + produto.getQuantidade() + "\nPreço: " + produto.getPreco() + "\nValor total em estoque: " + valorTotalEstoque);
 			
 		}
 		
 	}
-	
-		public static void listarProdutos(
-				Scanner sc,
+		public static boolean codigoExiste(
+				int codigo,
 				ArrayList<Produto> produtos) {
 			
-			int codigoEscolhido;
+			for (Produto produto : produtos) {
+				if(produto.getCodigo() == codigo) {
+					return true;
+				}
+			}
 			
-			System.out.println("Escolha um código:");
-			codigoEscolhido = sc.nextInt();
+			return false;
+		}
+		
+	
+		public static void listarProdutos(
+				
+				ArrayList<Produto> produtos) {
 			
-			boolean produtoEncontrado = false;
+			if(produtos.isEmpty()) {
+				System.out.println("\nNenhum produto cadastrado.");
+				return;
+			}
 			
 			for (int i = 0; i < produtos.size(); i++) {
 				
-					if  (produtos.get(i).codigo == codigoEscolhido){
-						System.out.println("\n\nProdutos:\nNome:" + produtos.get(i).nome);
-						System.out.println("Código:" + produtos.get(i).codigo);
-						System.out.println("Quantidade:" + produtos.get(i).quantidade);
-						System.out.println("Preço:" + produtos.get(i).preco);
-						produtoEncontrado = true;
-						System.out.println("\nProduto encontrado!");
-				
-					}	
-				}
-			if (produtoEncontrado == false) {
-				System.out.println("Produto não encontrado!");
-				
+						System.out.println("\n\nProdutos:\nNome: " + produtos.get(i).getNome());
+						System.out.println("Código: " + produtos.get(i).getCodigo());
+						System.out.println("Quantidade: " + produtos.get(i).getQuantidade());
+						System.out.println("Preço: " + produtos.get(i).getPreco());
+						
+				}	
 			}
-		}
+		
 			
 			
 		
@@ -128,48 +136,64 @@ public class Main {
 		
 			public static void movimentacaoEstoque(
 					Scanner sc,
-					Produto produto) {
+					ArrayList<Produto> produtos) {
 		
-		int movimentacao, QuantidadeEntrada, QuantidadeSaida;
+		int movimentacao, quantidadeEntrada, quantidadeSaida, codigoEscolhido;
 		
 		
 		
 		System.out.println("\n\nDigite o tipo de movimentação: \n1 - Entrada \n2 - Saída ");
 			movimentacao = sc.nextInt();
+		System.out.println("\n\nDigite o código do produto:");
+			codigoEscolhido = sc.nextInt();
 			
-			
+		Produto produtoEncontrado = null;
+		for(int i = 0; i < produtos.size(); i++) {
+			if(produtos.get(i).getCodigo() == codigoEscolhido) {
+				produtoEncontrado = produtos.get(i);
+				break;
+			}
+		}
+			if(produtoEncontrado == null) {
+				System.out.println("\nProduto não encontrado.");
+				return;
+			}
 		if (movimentacao == 1) {
 			System.out.println("\nQuantidade de Entrada:");
-				QuantidadeEntrada = sc.nextInt();
-					if (QuantidadeEntrada <= 0) {
+				quantidadeEntrada = sc.nextInt();
+					if (quantidadeEntrada <= 0) {
 						System.out.println("\nQuantidade de entrada inválida.");
 					}
 					else {
-						int estoqueAnterior = produto.quantidade;
-						produto.quantidade = produto.quantidade + QuantidadeEntrada;
-			System.out.println("\n\nEntrada realizada com sucesso. \nNovo estoque: " + produto.quantidade);
-			System.out.println("\n\n======= MOVIMENTAÇÃO =======\nTipo:" + movimentacao + "\nQuantidade: " + QuantidadeEntrada + "\nEstoque anterior: " + estoqueAnterior + "\nEstoque atual: " + produto.quantidade);
+						int estoqueAnterior = produtoEncontrado.getQuantidade();
+						produtoEncontrado.entradaEstoque(quantidadeEntrada);
+			System.out.println("\n\nEntrada realizada com sucesso. \nNovo estoque: " + produtoEncontrado.getQuantidade());
+			System.out.println("\n\n======= MOVIMENTAÇÃO =======\nTipo:" + movimentacao + "\nQuantidade: " + quantidadeEntrada + "\nEstoque anterior: " + estoqueAnterior + "\nEstoque atual: " + produtoEncontrado.getQuantidade());
 			}
 			
 		}
 					else if (movimentacao == 2) {
 			System.out.println("\nQuantidade de Saída:");
-				QuantidadeSaida = sc.nextInt();
-					if (QuantidadeSaida > produto.quantidade || QuantidadeSaida <= 0) {
-						System.out.println("\nSaída não realizada: estoque insuficiente. \nEstoque disponível: " + produto.quantidade);
+				quantidadeSaida = sc.nextInt();
+				int estoqueAnterior = produtoEncontrado.getQuantidade();
+				boolean saidaRealizada = produtoEncontrado.saidaEstoque(quantidadeSaida);
+				
+				
+					if (saidaRealizada) {
+						System.out.println("\n\nSaída realizada com sucesso. \nNovo estoque: " + produtoEncontrado.getQuantidade());
+						System.out.println("\n\n======= MOVIMENTAÇÃO =======\nTipo:" + movimentacao 
+								+ "\nQuantidade: " + quantidadeSaida 
+								+ "\nEstoque anterior: " + estoqueAnterior 
+								+ "\nEstoque atual: " + produtoEncontrado.getQuantidade());
+					}
+					else if (quantidadeSaida <= 0){
+						System.out.println("\nSaída não realizada.\nQuantidade inválida.");
 					}
 					else {
-						int estoqueAnterior = produto.quantidade;
-						produto.quantidade = produto.quantidade - QuantidadeSaida;
-			System.out.println("\n\nSaída realizada com sucesso. \nNovo estoque: " + produto.quantidade);
-			System.out.println("\n\n======= MOVIMENTAÇÃO =======\nTipo:" + movimentacao + "\nQuantidade: " + QuantidadeSaida + "\nEstoque anterior: " + estoqueAnterior + "\nEstoque atual: " + produto.quantidade);
-			}
+						System.out.println("\nSaída não realizada.\nEstoque insuficiente.");
+		
+			}			
 		}
-					else {
-			System.out.println("Tipo de movimentação inválido.");
-		}
-			
-		}
-	
 	}
+}	
 
